@@ -509,6 +509,7 @@ export class MenuCategoriaComponent implements OnInit {
 
     this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
       next: (response: any) => {
+        this.cargarClasificaciones();
         if (response?.Alerta) {
           this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
           return;
