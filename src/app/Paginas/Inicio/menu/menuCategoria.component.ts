@@ -461,9 +461,7 @@ export class MenuCategoriaComponent implements OnInit {
             const { UrlImagen, ...datosActualizados } = nuevaClasificacionCompleta;
 
             this.clasificacionProductoServicio.Editar(datosActualizados).subscribe({
-              next: () => {
-                this.cargarClasificaciones();
-                
+              next: () => {  
                 this.isLoadingCrear = false;
                 this.alertaServicio.MostrarExito('Nueva categoría creada correctamente', 'Éxito');
                 this.cargarClasificaciones();
@@ -516,7 +514,7 @@ export class MenuCategoriaComponent implements OnInit {
           return;
         }
 
-        console.log('Imagen subida correctamente', response);
+        console.log('Imagen ssssssssssssssssssssubida correctamente', response);
 
         if (response && response.Entidad && response.Entidad.UrlImagen) {
           // Actualizar la imagen localmente
@@ -528,6 +526,7 @@ export class MenuCategoriaComponent implements OnInit {
           this.clasificacionProductoServicio.Editar(datosActualizados).subscribe({
             next: () => {
               this.alertaServicio.MostrarExito('Imagen actualizada correctamente', 'Éxito');
+                 this.cargarClasificaciones();
             },
             error: (updateError) => {
               if (updateError?.error?.Alerta) {
