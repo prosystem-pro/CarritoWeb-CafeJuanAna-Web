@@ -160,6 +160,7 @@ export class MenuCategoriaComponent implements OnInit {
     this.isLoading = true;
     this.clasificacionProductoServicio.Listado().subscribe({
       next: (data: any[]) => {
+        console.log('Clasificaciones recibidas de la API:', data);
         this.clasificaciones = data.filter(
           (item) =>
             item.NombreClasificacionProducto &&
@@ -556,6 +557,7 @@ subirImagen(file: File, clasificacion: any): void {
     delete clasificacion.UrlImagen;
     this.clasificacionProductoServicio.Editar(clasificacion).subscribe({
       next: (response) => {
+        this.cargarClasificaciones();
         console.log('Clasificación actualizada');
       },
       error: (error) => {
