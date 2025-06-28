@@ -463,6 +463,7 @@ export class MenuCategoriaComponent implements OnInit {
             this.clasificacionProductoServicio.Editar(datosActualizados).subscribe({
               next: () => {
                 this.cargarClasificaciones();
+                
                 this.isLoadingCrear = false;
                 this.alertaServicio.MostrarExito('Nueva categoría creada correctamente', 'Éxito');
                 this.cargarClasificaciones();
