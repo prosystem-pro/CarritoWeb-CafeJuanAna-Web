@@ -513,14 +513,12 @@ export class MenuCategoriaComponent implements OnInit {
           this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
           return;
         }
-        this.cargarClasificaciones();
         if (response && response.Entidad && response.Entidad.UrlImagen) {
           // Actualizar la imagen localmente
           clasificacion.UrlImagen = response.Entidad.UrlImagen;
 
           // Excluir UrlImagen para la actualización al backend
           const { UrlImagen, ...datosActualizados } = clasificacion;
-          this.cargarClasificaciones();
           this.clasificacionProductoServicio.Editar(datosActualizados).subscribe({
             next: () => {
               this.alertaServicio.MostrarExito('Imagen actualizada correctamente', 'Éxito');
