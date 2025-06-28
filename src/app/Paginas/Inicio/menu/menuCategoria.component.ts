@@ -513,6 +513,7 @@ export class MenuCategoriaComponent implements OnInit {
           this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
           return;
         }
+        this.cargarClasificaciones();
         if (response && response.Entidad && response.Entidad.UrlImagen) {
           // Actualizar la imagen localmente
           clasificacion.UrlImagen = response.Entidad.UrlImagen;
