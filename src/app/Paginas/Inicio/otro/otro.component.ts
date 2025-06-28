@@ -243,6 +243,11 @@ export class OtroComponent {
   }
 
   subirImagen(file: File, CampoDestino: string, index: number | null, permiso: string | null): void {
+  if (!permiso) {
+    this.UrlImagenTemporal = '';
+    this.UrlImagenTemporal2 = '';
+    this.CodigoTemporal = '';
+  }
     const nombreEmpresa = this.NombreEmpresa ?? 'defaultCompanyName';
 
     this.EmpresaServicio.ConseguirPrimeraEmpresa().subscribe({
@@ -272,9 +277,11 @@ export class OtroComponent {
             }
             this.AlertaServicio.MostrarAlerta('El registro se actualizó correctamente.');
 
+          if (permiso) {
             this.UrlImagenTemporal = res?.Entidad?.UrlImagen || this.UrlImagenTemporal;
             this.UrlImagenTemporal2 = res?.Entidad?.UrlImagen2 || this.UrlImagenTemporal2;
             this.CodigoTemporal = res?.Entidad?.CodigoOtro || this.CodigoTemporal;
+          }
 
             if (!permiso) {
               this.ObtenerOtro();
