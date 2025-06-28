@@ -106,10 +106,10 @@ export class MenuCategoriaComponent implements OnInit {
           // Actualizar el título principal
           this.tituloPrincipal =
             this.menuPortada.TituloMenu || '';
-            this.servicioCompartido.setDatosClasificacion({
-              colorClasificacionFondo: this.menuPortada?.ColorFondoNombreClasificacion || '',
-              colorClasificacionTexto: this.menuPortada?.ColorNombreClasificacion || '',
-            });
+          this.servicioCompartido.setDatosClasificacion({
+            colorClasificacionFondo: this.menuPortada?.ColorFondoNombreClasificacion || '',
+            colorClasificacionTexto: this.menuPortada?.ColorNombreClasificacion || '',
+          });
         } else {
           this.crearMenuPortadaPorDefecto();
         }
@@ -178,30 +178,30 @@ export class MenuCategoriaComponent implements OnInit {
     });
   }
 
-cargarDatosCarrusel(): void {
-  this.carruselServicio.Listado().subscribe({
-    next: (data) => {
-      // Buscar carrusel únicamente por ubicación 'MenuCategoria'
-      let carruselMenuCategoria = null;
-      
-      if (data && data.length > 0) {
-        carruselMenuCategoria = data.find(c => c.Ubicacion === 'MenuCategoria');
-      }
+  cargarDatosCarrusel(): void {
+    this.carruselServicio.Listado().subscribe({
+      next: (data) => {
+        // Buscar carrusel únicamente por ubicación 'MenuCategoria'
+        let carruselMenuCategoria = null;
 
-      if (carruselMenuCategoria) {
-        this.carruselData = carruselMenuCategoria;
-        this.codigoCarrusel = this.carruselData.CodigoCarrusel;
-        this.titulo = this.carruselData.NombreCarrusel;
-        this.cargarImagenesCarrusel();
-      } else {
-        this.crearCarruselPorDefecto();
+        if (data && data.length > 0) {
+          carruselMenuCategoria = data.find(c => c.Ubicacion === 'MenuCategoria');
+        }
+
+        if (carruselMenuCategoria) {
+          this.carruselData = carruselMenuCategoria;
+          this.codigoCarrusel = this.carruselData.CodigoCarrusel;
+          this.titulo = this.carruselData.NombreCarrusel;
+          this.cargarImagenesCarrusel();
+        } else {
+          this.crearCarruselPorDefecto();
+        }
+      },
+      error: (err) => {
+        // this.crearCarruselPorDefecto();
       }
-    },
-    error: (err) => {
-      // this.crearCarruselPorDefecto();
-    }
-  });
-}
+    });
+  }
 
   // Crear Carrusel si no existe
   private crearCarruselPorDefecto(): void {
@@ -371,70 +371,139 @@ cargarDatosCarrusel(): void {
     }
   }
 
-subirImagenDecorativo(file: File, campoDestino: string): void {
-  const formData = new FormData();
-  formData.append('Imagen', file);
-  formData.append('CarpetaPrincipal', this.NombreEmpresa);
-  formData.append('SubCarpeta', 'MenuPortada');
-  formData.append('CodigoVinculado', this.menuPortada.CodigoEmpresa);
-  formData.append('CodigoPropio', this.menuPortada.CodigoMenuPortada);
-  formData.append('CampoVinculado', 'CodigoEmpresa');
-  formData.append('CampoPropio', 'CodigoMenuPortada');
-  formData.append('NombreCampoImagen', campoDestino);
-
-  this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
-    next: (response: any) => {
-      if (response?.Alerta) {
-        this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
-        return;
-      }
-
-      if (response && response.Entidad && response.Entidad[campoDestino]) {
-        this.menuPortada[campoDestino] = response.Entidad[campoDestino];
-        const {
-          UrlImagenNavbar,
-          UrlImagenPortadaIzquierdo,
-          UrlImagenPortadaDerecho,
-          UrlImagenMenu,
-          UrlImagenPresentacion,
-          ...datosActualizados
-        } = this.menuPortada;
-
-        this.menuPortadaServicio.Editar(datosActualizados).subscribe({
-          next: () => {
-            this.alertaServicio.MostrarExito('Imagen actualizada correctamente', 'Éxito');
-            this.modoEdicion = false;
-          },
-          error: (error) => {
-            if (error?.error?.Alerta) {
-              this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
-            } else {
-              this.alertaServicio.MostrarError('Error al actualizar la imagen');
-            }
-          }
-        });
-      }
-    },
-    error: (error) => {
-      if (error?.error?.Alerta) {
-        this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
-      } else {
-        this.alertaServicio.MostrarError('Error al subir la imagen');
-      }
-    }
-  });
-}
-
-subirImagenNuevaCategoria() {
-  if (this.nuevaCategoria.titulo && this.nuevaCategoria.imagenFile) {
-    this.isLoadingCrear = true;
-
+  subirImagenDecorativo(file: File, campoDestino: string): void {
     const formData = new FormData();
-    formData.append('Imagen', this.nuevaCategoria.imagenFile);
+    formData.append('Imagen', file);
+    formData.append('CarpetaPrincipal', this.NombreEmpresa);
+    formData.append('SubCarpeta', 'MenuPortada');
+    formData.append('CodigoVinculado', this.menuPortada.CodigoEmpresa);
+    formData.append('CodigoPropio', this.menuPortada.CodigoMenuPortada);
+    formData.append('CampoVinculado', 'CodigoEmpresa');
+    formData.append('CampoPropio', 'CodigoMenuPortada');
+    formData.append('NombreCampoImagen', campoDestino);
+
+    this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
+      next: (response: any) => {
+        if (response?.Alerta) {
+          this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
+          return;
+        }
+
+        if (response && response.Entidad && response.Entidad[campoDestino]) {
+          this.menuPortada[campoDestino] = response.Entidad[campoDestino];
+          const {
+            UrlImagenNavbar,
+            UrlImagenPortadaIzquierdo,
+            UrlImagenPortadaDerecho,
+            UrlImagenMenu,
+            UrlImagenPresentacion,
+            ...datosActualizados
+          } = this.menuPortada;
+
+          this.menuPortadaServicio.Editar(datosActualizados).subscribe({
+            next: () => {
+              this.alertaServicio.MostrarExito('Imagen actualizada correctamente', 'Éxito');
+              this.modoEdicion = false;
+            },
+            error: (error) => {
+              if (error?.error?.Alerta) {
+                this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
+              } else {
+                this.alertaServicio.MostrarError('Error al actualizar la imagen');
+              }
+            }
+          });
+        }
+      },
+      error: (error) => {
+        if (error?.error?.Alerta) {
+          this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
+        } else {
+          this.alertaServicio.MostrarError('Error al subir la imagen');
+        }
+      }
+    });
+  }
+
+  subirImagenNuevaCategoria() {
+    if (this.nuevaCategoria.titulo && this.nuevaCategoria.imagenFile) {
+      this.isLoadingCrear = true;
+
+      const formData = new FormData();
+      formData.append('Imagen', this.nuevaCategoria.imagenFile);
+      formData.append('CarpetaPrincipal', this.NombreEmpresa);
+      formData.append('SubCarpeta', 'ClasificacionProducto');
+      formData.append('CodigoVinculado', this.codigoEmpresa.toString() || '1');
+      formData.append('CodigoPropio', ''); // Vacío para que el servidor cree uno nuevo
+      formData.append('CampoVinculado', 'CodigoEmpresa');
+      formData.append('CampoPropio', 'CodigoClasificacionProducto');
+      formData.append('NombreCampoImagen', 'UrlImagen');
+
+      this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
+        next: (response: any) => {
+          if (response?.Alerta) {
+            this.isLoadingCrear = false;
+            this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
+            return;
+          }
+
+          if (response && response.Entidad) {
+            // Construir objeto con los datos recibidos
+            const nuevaClasificacionCompleta = {
+              CodigoClasificacionProducto: response.Entidad.CodigoClasificacionProducto,
+              CodigoEmpresa: this.codigoEmpresa,
+              NombreClasificacionProducto: this.nuevaCategoria.titulo,
+              UrlImagen: response.Entidad.UrlImagen || '',
+              Estatus: 1,
+            };
+
+            // Excluir UrlImagen para enviar solo datos que deben actualizarse
+            const { UrlImagen, ...datosActualizados } = nuevaClasificacionCompleta;
+
+            this.clasificacionProductoServicio.Editar(datosActualizados).subscribe({
+              next: () => {
+                this.cargarClasificaciones();
+                this.isLoadingCrear = false;
+                this.alertaServicio.MostrarExito('Nueva categoría creada correctamente', 'Éxito');
+                this.cargarClasificaciones();
+                this.resetNuevaCategoria();
+              },
+              error: (updateError) => {
+                this.isLoadingCrear = false;
+                if (updateError?.error?.Alerta) {
+                  this.alertaServicio.MostrarAlerta(updateError.error.Alerta, 'Atención');
+                } else {
+                  this.alertaServicio.MostrarError(updateError, 'Error al crear la categoría');
+                }
+                this.cargarClasificaciones();
+              },
+            });
+          } else {
+            this.isLoadingCrear = false;
+            this.alertaServicio.MostrarError('Error al procesar la respuesta del servidor', 'Error');
+          }
+        },
+        error: (error) => {
+          this.isLoadingCrear = false;
+          if (error?.error?.Alerta) {
+            this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
+          } else {
+            this.alertaServicio.MostrarError(error, 'Error al subir la imagen. Por favor, intente de nuevo.');
+          }
+        },
+      });
+    }
+  }
+
+
+
+  subirImagen(file: File, clasificacion: any): void {
+    const formData = new FormData();
+    formData.append('Imagen', file);
     formData.append('CarpetaPrincipal', this.NombreEmpresa);
     formData.append('SubCarpeta', 'ClasificacionProducto');
-    formData.append('CodigoVinculado', this.codigoEmpresa.toString() || '1');
-    formData.append('CodigoPropio', ''); // Vacío para que el servidor cree uno nuevo
+    formData.append('CodigoVinculado', clasificacion.CodigoEmpresa.toString());
+    formData.append('CodigoPropio', clasificacion.CodigoClasificacionProducto.toString());
     formData.append('CampoVinculado', 'CodigoEmpresa');
     formData.append('CampoPropio', 'CodigoClasificacionProducto');
     formData.append('NombreCampoImagen', 'UrlImagen');
@@ -442,48 +511,39 @@ subirImagenNuevaCategoria() {
     this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
       next: (response: any) => {
         if (response?.Alerta) {
-          this.isLoadingCrear = false;
           this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
           return;
         }
 
-        if (response && response.Entidad) {
-          // Construir objeto con los datos recibidos
-          const nuevaClasificacionCompleta = {
-            CodigoClasificacionProducto: response.Entidad.CodigoClasificacionProducto,
-            CodigoEmpresa: this.codigoEmpresa,
-            NombreClasificacionProducto: this.nuevaCategoria.titulo,
-            UrlImagen: response.Entidad.UrlImagen || '',
-            Estatus: 1,
-          };
+        console.log('Imagen subida correctamente', response);
 
-          // Excluir UrlImagen para enviar solo datos que deben actualizarse
-          const { UrlImagen, ...datosActualizados } = nuevaClasificacionCompleta;
+        if (response && response.Entidad && response.Entidad.UrlImagen) {
+          // Actualizar la imagen localmente
+          clasificacion.UrlImagen = response.Entidad.UrlImagen;
+
+          // Excluir UrlImagen para la actualización al backend
+          const { UrlImagen, ...datosActualizados } = clasificacion;
 
           this.clasificacionProductoServicio.Editar(datosActualizados).subscribe({
             next: () => {
-              this.isLoadingCrear = false;
-              this.alertaServicio.MostrarExito('Nueva categoría creada correctamente', 'Éxito');
-              this.cargarClasificaciones();
-              this.resetNuevaCategoria();
+              this.alertaServicio.MostrarExito('Imagen actualizada correctamente', 'Éxito');
             },
             error: (updateError) => {
-              this.isLoadingCrear = false;
               if (updateError?.error?.Alerta) {
                 this.alertaServicio.MostrarAlerta(updateError.error.Alerta, 'Atención');
               } else {
-                this.alertaServicio.MostrarError(updateError, 'Error al crear la categoría');
+                this.alertaServicio.MostrarError('Error al actualizar la imagen');
               }
-              this.cargarClasificaciones();
-            },
+            }
           });
         } else {
-          this.isLoadingCrear = false;
-          this.alertaServicio.MostrarError('Error al procesar la respuesta del servidor', 'Error');
+          this.alertaServicio.MostrarError('Error al procesar la respuesta del servidor');
+          console.warn('No se pudo obtener la URL de la imagen', response);
+          this.cargarClasificaciones();
         }
       },
       error: (error) => {
-        this.isLoadingCrear = false;
+        console.error('Error al subir la imagen', error);
         if (error?.error?.Alerta) {
           this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
         } else {
@@ -492,65 +552,6 @@ subirImagenNuevaCategoria() {
       },
     });
   }
-}
-
-
-
-subirImagen(file: File, clasificacion: any): void {
-  const formData = new FormData();
-  formData.append('Imagen', file);
-  formData.append('CarpetaPrincipal', this.NombreEmpresa);
-  formData.append('SubCarpeta', 'ClasificacionProducto');
-  formData.append('CodigoVinculado', clasificacion.CodigoEmpresa.toString());
-  formData.append('CodigoPropio', clasificacion.CodigoClasificacionProducto.toString());
-  formData.append('CampoVinculado', 'CodigoEmpresa');
-  formData.append('CampoPropio', 'CodigoClasificacionProducto');
-  formData.append('NombreCampoImagen', 'UrlImagen');
-
-  this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
-    next: (response: any) => {
-      if (response?.Alerta) {
-        this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
-        return;
-      }
-
-      console.log('Imagen subida correctamente', response);
-
-      if (response && response.Entidad && response.Entidad.UrlImagen) {
-        // Actualizar la imagen localmente
-        clasificacion.UrlImagen = response.Entidad.UrlImagen;
-
-        // Excluir UrlImagen para la actualización al backend
-        const { UrlImagen, ...datosActualizados } = clasificacion;
-
-        this.clasificacionProductoServicio.Editar(datosActualizados).subscribe({
-          next: () => {
-            this.alertaServicio.MostrarExito('Imagen actualizada correctamente', 'Éxito');
-          },
-          error: (updateError) => {
-            if (updateError?.error?.Alerta) {
-              this.alertaServicio.MostrarAlerta(updateError.error.Alerta, 'Atención');
-            } else {
-              this.alertaServicio.MostrarError('Error al actualizar la imagen');
-            }
-          }
-        });
-      } else {
-        this.alertaServicio.MostrarError('Error al procesar la respuesta del servidor');
-        console.warn('No se pudo obtener la URL de la imagen', response);
-        this.cargarClasificaciones();
-      }
-    },
-    error: (error) => {
-      console.error('Error al subir la imagen', error);
-      if (error?.error?.Alerta) {
-        this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
-      } else {
-        this.alertaServicio.MostrarError(error, 'Error al subir la imagen. Por favor, intente de nuevo.');
-      }
-    },
-  });
-}
 
   // Actualiza una clasificación en el servidor
   actualizarClasificacion(clasificacion: any): void {
