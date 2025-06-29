@@ -97,15 +97,15 @@ export class AppComponent implements OnInit {
 
     const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
 
-    // const exito = navigator.sendBeacon(
-    //   'https://carritoweb-promesadios-api.onrender.com/api/reportetiempopagina/crear',
-    //   blob
-    // );
-
     const exito = navigator.sendBeacon(
-      Entorno.ApiUrl + 'reportetiempopagina/crear',
+      'https://carritoweb-cafejuanana-api.onrender.com/api/reportetiempopagina/crear',
       blob
     );
+
+    // const exito = navigator.sendBeacon(
+    //   Entorno.ApiUrl + 'reportetiempopagina/crear',
+    //   blob
+    // );
 
     if (exito) {
       console.log('✅ Beacon enviado correctamente.');
