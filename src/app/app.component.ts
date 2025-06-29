@@ -97,15 +97,15 @@ export class AppComponent implements OnInit {
 
     const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
 
-    const exito = navigator.sendBeacon(
-      'https://carritoweb-cafejuanana-api.onrender.com/api/reportetiempopagina/crear',
-      blob
-    );
-
     // const exito = navigator.sendBeacon(
-    //   Entorno.ApiUrl + 'reportetiempopagina/crear',
+    //   'https://carritoweb-cafejuanana-api.onrender.com/api/reportetiempopagina/crear',
     //   blob
     // );
+
+    const exito = navigator.sendBeacon(
+      Entorno.ApiUrl + 'reportetiempopagina/crear',
+      blob
+    );
 
     if (exito) {
       console.log('✅ Beacon enviado correctamente.');
@@ -114,7 +114,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-
   RegistrarTiempoPagina(tiempoFormateado: string): void {
     const Datos = {
       TiempoPromedio: tiempoFormateado,
@@ -122,7 +121,7 @@ export class AppComponent implements OnInit {
     };
 
     this.ReporteTiempoPaginaServicio.Crear(Datos).subscribe({
-      next: (Respuesta) => console.log('Tiempo registrado con éxito:', Respuesta),
+      next: (Respuesta) => console.log('Tiempo registrado con éxitoddddddddddddddd:', Respuesta),
       error: (Error) => console.error('Error al registrar tiempo en página:', Error)
     });
   }
