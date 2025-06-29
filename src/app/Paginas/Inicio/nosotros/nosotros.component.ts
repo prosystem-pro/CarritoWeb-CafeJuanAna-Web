@@ -44,7 +44,7 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
   colorFooter: string = '';
   datosListos: boolean = false;
   codigoEmpresa: number | null = null;
-  
+
   private Url = `${Entorno.ApiUrl}`;
   private NombreEmpresa = `${Entorno.NombreEmpresa}`;
 
@@ -71,7 +71,7 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
       this.servicioCompartido.colorFooter$.subscribe((color) => {
         this.colorFooter = color;
       });
-      
+
       // Listeners para intentar reproducir el video en la primera interacción
       document.body.addEventListener('touchstart', this.intentaReproducirVideo, { once: true });
       document.body.addEventListener('click', this.intentaReproducirVideo, { once: true });
@@ -90,23 +90,23 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
   private configurarVideoSinSonido(): void {
     if (this.videoPlayer?.nativeElement) {
       const videoEl = this.videoPlayer.nativeElement;
-      
+
       // Configuración exhaustiva para asegurar que inicie sin sonido
       videoEl.muted = true;
       videoEl.defaultMuted = true;
       videoEl.volume = 0;
-      
+
       // Establecer atributos HTML directamente
       videoEl.setAttribute('muted', 'true');
       videoEl.setAttribute('defaultmuted', 'true');
       videoEl.setAttribute('playsinline', 'true');
-      
+
       // Listener para cuando se carga el video
       videoEl.addEventListener('loadeddata', () => {
         videoEl.muted = true;
         videoEl.volume = 0;
       });
-      
+
       // Listener para cuando el video está listo para reproducir
       videoEl.addEventListener('canplay', () => {
         videoEl.muted = true;
@@ -124,21 +124,21 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
       videoEl.muted = true;
       videoEl.defaultMuted = true;
       videoEl.volume = 0;
-      
+
       // Asegurar atributos HTML
       videoEl.setAttribute('muted', 'true');
       videoEl.setAttribute('defaultmuted', 'true');
 
       // Intentar reproducir
       const playPromise = videoEl.play();
-      
+
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             console.log('Video reproduciéndose automáticamente SIN sonido');
             this.videoInicializado = true;
             this.VolumenVideo = false;
-            
+
             // Verificar que realmente esté sin sonido después de reproducir
             setTimeout(() => {
               if (videoEl.volume > 0 || !videoEl.muted) {
@@ -158,12 +158,12 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
   activarSonido(): void {
     if (this.videoPlayer?.nativeElement) {
       const videoEl = this.videoPlayer.nativeElement;
-      
+
       // Activar sonido
       videoEl.muted = false;
       videoEl.volume = 1;
       videoEl.removeAttribute('muted');
-      
+
       // Asegurar que siga reproduciéndose
       videoEl.play().catch(err => console.warn('Error al activar sonido:', err));
 
@@ -177,7 +177,7 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
   setSanitizedUrl(): void {
     if (this.rawYoutubeUrl) {
       this.sanitizedVideoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawYoutubeUrl);
-      
+
       // Después de establecer la URL, configurar el video sin sonido
       setTimeout(() => {
         this.configurarVideoSinSonido();
@@ -295,7 +295,7 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
       next: (data) => {
         // Buscar carrusel específicamente por ubicación 'Nosotros'
         let carruselNosotros = null;
-        
+
         if (data && data.length > 0) {
           carruselNosotros = data.find(c => c.Ubicacion === 'Nosotros');
         }
@@ -535,54 +535,55 @@ export class NosotrosComponent implements OnInit, AfterViewInit {
     formData.append('NombreCampoImagen', campoDestino);
 
     this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
-     next: (response: any) => {
-      if (response?.Alerta) {
-        this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
-        return;
-      }
+      next: (response: any) => {
+        if (response?.Alerta) {
+          this.alertaServicio.MostrarAlerta(response.Alerta, 'Atención');
+          return;
+        }
 
-      if (response && response.Entidad && response.Entidad[campoDestino]) {
-        this.portadaData[campoDestino] = response.Entidad[campoDestino];
+        if (response && response.Entidad && response.Entidad[campoDestino]) {
+          this.portadaData[campoDestino] = response.Entidad[campoDestino];
 
-        const {
-          UrlImagenPortada,
-          UrlImagenPortadaIzquierdo,
-          UrlImagenPortadaDerecho,
-          UrlImagenMision,
-          UrlImagenVision,
-          ...datosActualizados
-        } = this.portadaData;
+          const {
+            UrlImagenPortada,
+            UrlImagenPortadaIzquierdo,
+            UrlImagenPortadaDerecho,
+            UrlImagenMision,
+            UrlImagenVision,
+            ...datosActualizados
+          } = this.portadaData;
 
-        this.empresaPortadaServicio.Editar(datosActualizados).subscribe({
-          next: () => {
-            this.alertaServicio.MostrarExito(
-              'Campo de imagen actualizado correctamente'
-            );
-            this.modoEdicion = false;
-          },
-          error: (error) => {
-            if (error?.error?.Alerta) {
-              this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
-            } else {
-              this.alertaServicio.MostrarError(
-                'Error al actualizar el campo de imagen. Por favor, intente de nuevo.'
+          this.empresaPortadaServicio.Editar(datosActualizados).subscribe({
+            next: () => {
+              this.alertaServicio.MostrarExito(
+                'Campo de imagen actualizado correctamente'
               );
-            }
-          },
-        });
-      }
-    },
-    error: (error) => {
-      if (error?.error?.Alerta) {
-        this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
-      } else {
-        this.alertaServicio.MostrarError(
-          'Error al subir la imagen. Por favor, intente de nuevo.'
-        );
-      }
-    },
-  });
-}
+              this.cargarDatosPortada();
+              this.modoEdicion = false;
+            },
+            error: (error) => {
+              if (error?.error?.Alerta) {
+                this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
+              } else {
+                this.alertaServicio.MostrarError(
+                  'Error al actualizar el campo de imagen. Por favor, intente de nuevo.'
+                );
+              }
+            },
+          });
+        }
+      },
+      error: (error) => {
+        if (error?.error?.Alerta) {
+          this.alertaServicio.MostrarAlerta(error.error.Alerta, 'Atención');
+        } else {
+          this.alertaServicio.MostrarError(
+            'Error al subir la imagen. Por favor, intente de nuevo.'
+          );
+        }
+      },
+    });
+  }
 
   // Método para actualizar la URL del video
   actualizarVideo(): void {

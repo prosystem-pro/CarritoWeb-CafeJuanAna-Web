@@ -304,6 +304,7 @@ export class FooterComponent implements OnInit {
             this.footerServicio.Editar(datosActualizados).subscribe({
               next: () => {
                 this.alertaServicio.MostrarExito('Imagen actualizada correctamente');
+                this.cargarDatosFooter();
                 this.modoEdicion = false;
               },
               error: () => {

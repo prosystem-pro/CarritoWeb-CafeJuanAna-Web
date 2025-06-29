@@ -551,6 +551,7 @@ export class CarruselComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           this.alertaServicio.MostrarExito('Imagen subida correctamente');
+          this.cargarDatosCarrusel();
           this.cargandoImagen = false;
 
           const nuevaImagenCarrusel: CarruselItem = {
@@ -669,6 +670,7 @@ export class CarruselComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           this.alertaServicio.MostrarExito('Imagen actualizada correctamente');
+          this.cargarDatosCarrusel();
           this.cargandoImagen = false;
 
           if (this.itemEnEdicion) {

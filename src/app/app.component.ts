@@ -48,12 +48,9 @@ export class AppComponent implements OnInit {
         TiempoPromedio: '00:00:00',
         Navegador: this.ObtenerNavegador()
       };
-
       this.ReporteTiempoPaginaServicio.Crear(datos).subscribe({
         next: (respuesta) => {
-          console.log('Reporte inicial creado:', respuesta);
           this.codigoReporteTiempoPagina = respuesta.CodigoReporteTiempoPagina;
-          console.log('Código guardado:', this.codigoReporteTiempoPagina);
           this.iniciarActualizacionTiempo();
         },
         error: (err) => console.error('Error creando reporte inicial:', err)
@@ -61,25 +58,26 @@ export class AppComponent implements OnInit {
     }, 5000);
   }
 
-  iniciarActualizacionTiempo(): void {
-    this.intervaloActualizacion = setInterval(() => {
-      if (!this.codigoReporteTiempoPagina) return;
+iniciarActualizacionTiempo(): void {
+  this.intervaloActualizacion = setInterval(() => {
+    if (!this.codigoReporteTiempoPagina) return;
 
-      const tiempoMs = Date.now() - this.horaEntrada;
-      const tiempoFormateado = this.formatearTiempo(tiempoMs);
+    const tiempoMs = Date.now() - this.horaEntrada;
+    const tiempoFormateado = this.formatearTiempo(tiempoMs);
 
-      const datos = {
-        CodigoReporteTiempoPagina: this.codigoReporteTiempoPagina,
-        TiempoPromedio: tiempoFormateado,
-        Navegador: this.ObtenerNavegador()
-      };
+    const datos = {
+      CodigoReporteTiempoPagina: this.codigoReporteTiempoPagina,
+      TiempoPromedio: tiempoFormateado,
+      Navegador: this.ObtenerNavegador()
+    };
 
-      this.ReporteTiempoPaginaServicio.Editar(datos).subscribe({
-        next: () => console.log('Tiempo actualizado:', tiempoFormateado),
-        error: (err) => console.error('Error actualizando tiempo:', err)
-      });
-    }, 10000);
-  }
+    this.ReporteTiempoPaginaServicio.Editar(datos).subscribe({
+      next: () => {},
+      error: () => {}
+    });
+  }, 10000);
+}
+
 
   @HostListener('window:mousemove')
   @HostListener('window:keydown')
