@@ -102,16 +102,28 @@ export class AppComponent implements OnInit {
     //   blob
     // );
 
-    const exito = navigator.sendBeacon(
-      Entorno.ApiUrl + 'reportetiempopagina/crear',
-      blob
-    );
+    // const exito = navigator.sendBeacon(
+    //   Entorno.ApiUrl + 'reportetiempopagina/crear',
+    //   blob
+    // );
 
-    if (exito) {
-      console.log('✅ Beacon enviado correctamente.');
-    } else {
-      console.warn('⚠️ Beacon NO se pudo enviar.');
-    }
+    // if (exito) {
+    //   console.log('✅ Beacon enviado correctamente.');
+    // } else {
+    //   console.warn('⚠️ Beacon NO se pudo enviar.');
+    // }
+    fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(datos)
+    }).then(response => {
+      console.log('✅ Registro enviado con fetch. Status:', response.status);
+    }).catch(error => {
+      console.error('❌ Error al enviar con fetch:', error);
+    });
+
   }
 
   RegistrarTiempoPagina(tiempoFormateado: string): void {
