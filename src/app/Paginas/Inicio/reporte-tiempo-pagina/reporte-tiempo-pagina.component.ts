@@ -1,7 +1,6 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { ReporteTiempoPaginaServicio } from '../../../Servicios/ReporteTiempoPaginaServicio';
 import { CommonModule } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
 import { FormsModule } from '@angular/forms';
 import { HeaderReporteComponent } from '../../../Componentes/header-reporte/header-reporte.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -21,7 +20,7 @@ import { MatNativeDateModule } from '@angular/material/core';
   templateUrl: './reporte-tiempo-pagina.component.html',
   styleUrl: './reporte-tiempo-pagina.component.css'
 })
-export class ReporteTiempoPaginaComponent {
+export class ReporteTiempoPaginaComponent implements OnInit, OnDestroy {
   @ViewChild('selectorFecha') selectorFecha!: ElementRef<HTMLInputElement>;
   TotalTiempo: { dias: number, horas: number, minutos: number, segundos: number } = {
     dias: 0,
@@ -33,6 +32,7 @@ export class ReporteTiempoPaginaComponent {
   espacioEntreSegmentos = 3;
 
 
+  IntervaloActualizacion: any;
 
   TotalSolicitudMes: number = 0;
   TopProductos: any[] = [];
@@ -42,10 +42,19 @@ export class ReporteTiempoPaginaComponent {
   DiaSeleccionado: string = String(new Date().getDate()).padStart(2, '0');
   FechaSeleccionada: Date = new Date(this.AnioTemporal, this.MesTemporal - 1, parseInt(this.DiaSeleccionado));
 
+  ngOnInit(): void {
+    this.ObtenerDatos();
+    this.IntervaloActualizacion = setInterval(() => {
+      this.ObtenerDatos();
+    }, 10000); // cada 10 segundos
+  }
+  ngOnDestroy(): void {
+    clearInterval(this.IntervaloActualizacion);
+  }
 
   CalcularDashArray(porcentaje: number): string {
-    const radio = 10; 
-    const perimetro = 2 * Math.PI * radio; 
+    const radio = 10;
+    const perimetro = 2 * Math.PI * radio;
 
     if (porcentaje <= 0) {
       return `0 ${perimetro.toFixed(2)}`;
@@ -55,8 +64,8 @@ export class ReporteTiempoPaginaComponent {
       return `${perimetro.toFixed(2)} 0`;
     }
 
-    const segmento = 5;   
-    const espacio = 0.5; 
+    const segmento = 5;
+    const espacio = 0.5;
 
     const longitudTotal = (porcentaje / 100) * perimetro;
     const numeroSegmentos = Math.floor(longitudTotal / (segmento + espacio));
@@ -131,7 +140,7 @@ export class ReporteTiempoPaginaComponent {
     });
   }
   get tiemposCirculos() {
-    const maxDias = 30; 
+    const maxDias = 30;
     const maxHoras = 24;
     const maxMinutos = 60;
     const maxSegundos = 60;

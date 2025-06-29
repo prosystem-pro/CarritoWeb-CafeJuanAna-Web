@@ -230,6 +230,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.Servicio.Editar(datosLimpios).subscribe({
           next: () => {
             this.AlertaServicio.MostrarExito('Imagen actualizada correctamente');
+            this.Listado();
             this.modoEdicion = false;
           },
           error: (error) => {
