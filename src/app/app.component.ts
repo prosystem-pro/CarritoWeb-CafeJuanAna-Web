@@ -95,13 +95,15 @@ export class AppComponent implements OnInit {
       Navegador: this.ObtenerNavegador()
     };
 
-    console.log('⏳ Registrando salida...');
-    console.log('Datos a enviar:', datos);
-
     const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
 
+    // const exito = navigator.sendBeacon(
+    //   'https://carritoweb-promesadios-api.onrender.com/api/reportetiempopagina/crear',
+    //   blob
+    // );
+
     const exito = navigator.sendBeacon(
-      'https://carritoweb-promesadios-api.onrender.com/api/reportetiempopagina/crear',
+      Entorno.ApiUrl + 'reportetiempopagina/crear',
       blob
     );
 
