@@ -17,14 +17,13 @@ import { PermisoServicio } from './Autorizacion/AutorizacionPermiso';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-
 export class AppComponent implements OnInit {
   title = 'CarritoWeb-Web';
   private horaEntrada: number = 0;
-  private intervaloEnvio: any;
-  private tiempoAcumuladoMs: number = 0;
   private temporizadorInactividad: any;
   private tiempoMaxInactividadMs = 15 * 60 * 1000;
+  private codigoReporteTiempoPagina: number | null = null;
+  private intervaloActualizacion: any;
   carritoAbierto = false;
 
   constructor(
@@ -34,7 +33,6 @@ export class AppComponent implements OnInit {
     private carritoEstadoService: CarritoEstadoService,
     public permisoServicio: PermisoServicio
   ) {
-    // Suscribirse al estado del carrito
     this.carritoEstadoService.carritoAbierto$.subscribe(
       estado => this.carritoAbierto = estado
     );
@@ -42,25 +40,47 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.horaEntrada = Date.now();
-
-    const EntradasNavegacion = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
-
-    const EsRecarga = EntradasNavegacion.length > 0
-      ? EntradasNavegacion[0].type === 'reload'
-      : performance.navigation.type === 1;
-
-    const EsAccesoDirecto = EntradasNavegacion.length > 0
-      ? EntradasNavegacion[0].type === 'navigate'
-      : performance.navigation.type === 0;
-
-    if (EsRecarga || EsAccesoDirecto) {
-      this.ReportarVista();
-    }
-    //     setTimeout(() => {
-    //   this.probarEnvioBeacon();
-    // }, 5000); // 5 segundos
     this.reiniciarTemporizadorInactividad();
+    this.ReportarVista();
+
+    setTimeout(() => {
+      const datos = {
+        TiempoPromedio: '00:00:00',
+        Navegador: this.ObtenerNavegador()
+      };
+
+      this.ReporteTiempoPaginaServicio.Crear(datos).subscribe({
+        next: (respuesta) => {
+          console.log('Reporte inicial creado:', respuesta);
+          this.codigoReporteTiempoPagina = respuesta.CodigoReporteTiempoPagina;
+          console.log('Código guardado:', this.codigoReporteTiempoPagina);
+          this.iniciarActualizacionTiempo();
+        },
+        error: (err) => console.error('Error creando reporte inicial:', err)
+      });
+    }, 5000);
   }
+
+  iniciarActualizacionTiempo(): void {
+    this.intervaloActualizacion = setInterval(() => {
+      if (!this.codigoReporteTiempoPagina) return;
+
+      const tiempoMs = Date.now() - this.horaEntrada;
+      const tiempoFormateado = this.formatearTiempo(tiempoMs);
+
+      const datos = {
+        CodigoReporteTiempoPagina: this.codigoReporteTiempoPagina,
+        TiempoPromedio: tiempoFormateado,
+        Navegador: this.ObtenerNavegador()
+      };
+
+      this.ReporteTiempoPaginaServicio.Editar(datos).subscribe({
+        next: () => console.log('Tiempo actualizado:', tiempoFormateado),
+        error: (err) => console.error('Error actualizando tiempo:', err)
+      });
+    }, 10000);
+  }
+
   @HostListener('window:mousemove')
   @HostListener('window:keydown')
   @HostListener('window:click')
@@ -70,7 +90,6 @@ export class AppComponent implements OnInit {
 
   reiniciarTemporizadorInactividad(): void {
     clearTimeout(this.temporizadorInactividad);
-
     this.temporizadorInactividad = setTimeout(() => {
       console.warn('Usuario inactivo. Cerrando sesión automáticamente...');
       this.cerrarSesion();
@@ -84,92 +103,28 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // @HostListener('window:beforeunload', ['$event'])
-  // registrarSalida(event: Event): void {
-  //   const horaSalida = Date.now();
-  //   const tiempoMs = horaSalida - this.horaEntrada;
-  //   const tiempoFormateado = this.formatearTiempo(tiempoMs);
-
-  //   const datos = {
-  //     TiempoPromedio: tiempoFormateado,
-  //     Navegador: this.ObtenerNavegador()
-  //   };
-
-  //   const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
-
-  //   // const exito = navigator.sendBeacon(
-  //   //   'https://carritoweb-cafejuanana-api.onrender.com/api/reportetiempopagina/crear',
-  //   //   blob
-  //   // );
-
-  //   // const exito = navigator.sendBeacon(
-  //   //   Entorno.ApiUrl + 'reportetiempopagina/crear',
-  //   //   blob
-  //   // );
-
-  //   // if (exito) {
-  //   //   console.log('✅ Beacon enviado correctamente.');
-  //   // } else {
-  //   //   console.warn('⚠️ Beacon NO se pudo enviar.');
-  //   // }
-  //   fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     body: JSON.stringify(datos)
-  //   }).then(response => {
-  //     console.log('✅ Registro enviado con fetch. Status:', response.status);
-  //   }).catch(error => {
-  //     console.error('❌ Error al enviar con fetch:', error);
-  //   });
-
-  // }
   @HostListener('window:beforeunload', ['$event'])
-registrarSalida(event: Event): void {
-  const horaSalida = Date.now();
-  const tiempoMs = horaSalida - this.horaEntrada;
-  const tiempoFormateado = this.formatearTiempo(tiempoMs);
+  @HostListener('window:pagehide', ['$event'])
+  registrarSalida(): void {
+    clearInterval(this.intervaloActualizacion);
+    if (this.codigoReporteTiempoPagina == null) return;
 
-  const datos = {
-    TiempoPromedio: tiempoFormateado,
-    Navegador: this.ObtenerNavegador()
-  };
+    const tiempoFinalMs = Date.now() - this.horaEntrada;
+    const tiempoFormateado = this.formatearTiempo(tiempoFinalMs);
 
-  const jsonData = JSON.stringify(datos);
-  const blob = new Blob([jsonData], { type: 'application/json' });
-
-  // Intenta enviar con sendBeacon
-  const enviado = navigator.sendBeacon(Entorno.ApiUrl + 'reportetiempopagina/crear', blob);
-
-  if (!enviado) {
-    // Fallback con fetch y keepalive para asegurar envío
-    fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: jsonData,
-      keepalive: true
-    }).then(response => {
-      console.log('✅ Registro enviado con fetch (fallback). Status:', response.status);
-    }).catch(error => {
-      console.error('❌ Error al enviar con fetch (fallback):', error);
-    });
-  }
-}
-
-
-  RegistrarTiempoPagina(tiempoFormateado: string): void {
-    const Datos = {
+    const datos = {
+      CodigoReporteTiempoPagina: this.codigoReporteTiempoPagina,
       TiempoPromedio: tiempoFormateado,
       Navegador: this.ObtenerNavegador()
     };
 
-    this.ReporteTiempoPaginaServicio.Crear(Datos).subscribe({
-      next: (Respuesta) => console.log('Tiempo registrado con éxitoddddddddddddddd:', Respuesta),
-      error: (Error) => console.error('Error al registrar tiempo en página:', Error)
-    });
+    const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
+    const exito = navigator.sendBeacon(
+      Entorno.ApiUrl + 'reportetiempopagina/editar',
+      blob
+    );
+
+    console.log('Último beacon enviado:', exito);
   }
 
   formatearTiempo(ms: number): string {
@@ -193,58 +148,43 @@ registrarSalida(event: Event): void {
 
   ObtenerNavegador(): string {
     const AgenteUsuario = navigator.userAgent;
-
-    if (AgenteUsuario.includes('Chrome') && !AgenteUsuario.includes('Edg')) {
-      return 'Chrome';
-    } else if (AgenteUsuario.includes('Firefox')) {
-      return 'Firefox';
-    } else if (AgenteUsuario.includes('Safari') && !AgenteUsuario.includes('Chrome')) {
-      return 'Safari';
-    } else if (AgenteUsuario.includes('Edg')) {
-      return 'Edge';
-    } else {
-      return 'Desconocido';
-    }
+    if (AgenteUsuario.includes('Chrome') && !AgenteUsuario.includes('Edg')) return 'Chrome';
+    if (AgenteUsuario.includes('Firefox')) return 'Firefox';
+    if (AgenteUsuario.includes('Safari') && !AgenteUsuario.includes('Chrome')) return 'Safari';
+    if (AgenteUsuario.includes('Edg')) return 'Edge';
+    return 'Desconocido';
   }
 
   // Rutas auxiliares
   esLogin(): boolean {
     return this.router.url === '/login';
   }
-
   esProductos(): boolean {
     return this.router.url.startsWith('/productos');
   }
-
   esContacto(): boolean {
     return this.router.url === '/contacto';
   }
-
   esOtro(): boolean {
     return this.router.url === '/otro';
   }
-
   esReporteProducto(): boolean {
     return this.router.url === '/reporte-producto';
   }
-
   esReporteVista(): boolean {
     return this.router.url === '/reporte-vista';
   }
-
   esReporteRedSocial(): boolean {
     return this.router.url === '/reporte-red-social';
   }
-
   esReporteTiempoPagina(): boolean {
     return this.router.url === '/reporte-tiempo-pagina';
   }
 
   mostrarSidebar(): boolean {
-    if (this.permisoServicio.PermisoAdminSuperAdmin() && this.router.url.startsWith('/reporte')) {
-      return false;
-    }
-
-    return true;
+    return !(
+      this.permisoServicio.PermisoAdminSuperAdmin() &&
+      this.router.url.startsWith('/reporte')
+    );
   }
 }
