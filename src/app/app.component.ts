@@ -84,79 +84,47 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // @HostListener('window:beforeunload', ['$event'])
-  // registrarSalida(event: Event): void {
-  //   const horaSalida = Date.now();
-  //   const tiempoMs = horaSalida - this.horaEntrada;
-  //   const tiempoFormateado = this.formatearTiempo(tiempoMs);
+  @HostListener('window:beforeunload', ['$event'])
+  registrarSalida(event: Event): void {
+    const horaSalida = Date.now();
+    const tiempoMs = horaSalida - this.horaEntrada;
+    const tiempoFormateado = this.formatearTiempo(tiempoMs);
 
-  //   const datos = {
-  //     TiempoPromedio: tiempoFormateado,
-  //     Navegador: this.ObtenerNavegador()
-  //   };
+    const datos = {
+      TiempoPromedio: tiempoFormateado,
+      Navegador: this.ObtenerNavegador()
+    };
 
-  //   const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
 
+    // const exito = navigator.sendBeacon(
+    //   'https://carritoweb-cafejuanana-api.onrender.com/api/reportetiempopagina/crear',
+    //   blob
+    // );
 
-  //   fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     body: JSON.stringify(datos)
-  //   }).then(response => {
-  //     console.log('✅ Registro enviado con fetch. Status:', response.status);
-  //   }).catch(error => {
-  //     console.error('❌ Error al enviar con fetch:', error);
-  //   });
+    // const exito = navigator.sendBeacon(
+    //   Entorno.ApiUrl + 'reportetiempopagina/crear',
+    //   blob
+    // );
 
-  // }
-@HostListener('window:beforeunload', ['$event'])
-registrarSalida(event: Event): void {
-  const horaSalida = Date.now();
-  const tiempoMs = horaSalida - this.horaEntrada;
-  const tiempoFormateado = this.formatearTiempo(tiempoMs);
-
-  const datos = {
-    TiempoPromedio: tiempoFormateado,
-    Navegador: this.ObtenerNavegador()
-  };
-
-  const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
-
-  if (navigator.sendBeacon) {
-    const enviado = navigator.sendBeacon(Entorno.ApiUrl + 'reportetiempopagina/crear', blob);
-    if (!enviado) {
-      // fallback con fetch en caso de que sendBeacon falle
-      fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(datos),
-        keepalive: true
-      }).then(response => {
-        console.log('✅ Registro enviado con fetch (fallback). Status:', response.status);
-      }).catch(error => {
-        console.error('❌ Error al enviar con fetch (fallback):', error);
-      });
-    }
-  } else {
-    // si no existe sendBeacon, usa fetch con keepalive
+    // if (exito) {
+    //   console.log('✅ Beacon enviado correctamente.');
+    // } else {
+    //   console.warn('⚠️ Beacon NO se pudo enviar.');
+    // }
     fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(datos),
-      keepalive: true
+      body: JSON.stringify(datos)
     }).then(response => {
       console.log('✅ Registro enviado con fetch. Status:', response.status);
     }).catch(error => {
       console.error('❌ Error al enviar con fetch:', error);
     });
+
   }
-}
 
   RegistrarTiempoPagina(tiempoFormateado: string): void {
     const Datos = {
