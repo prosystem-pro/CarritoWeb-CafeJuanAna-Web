@@ -84,47 +84,81 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // @HostListener('window:beforeunload', ['$event'])
+  // registrarSalida(event: Event): void {
+  //   const horaSalida = Date.now();
+  //   const tiempoMs = horaSalida - this.horaEntrada;
+  //   const tiempoFormateado = this.formatearTiempo(tiempoMs);
+
+  //   const datos = {
+  //     TiempoPromedio: tiempoFormateado,
+  //     Navegador: this.ObtenerNavegador()
+  //   };
+
+  //   const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
+
+  //   // const exito = navigator.sendBeacon(
+  //   //   'https://carritoweb-cafejuanana-api.onrender.com/api/reportetiempopagina/crear',
+  //   //   blob
+  //   // );
+
+  //   // const exito = navigator.sendBeacon(
+  //   //   Entorno.ApiUrl + 'reportetiempopagina/crear',
+  //   //   blob
+  //   // );
+
+  //   // if (exito) {
+  //   //   console.log('✅ Beacon enviado correctamente.');
+  //   // } else {
+  //   //   console.warn('⚠️ Beacon NO se pudo enviar.');
+  //   // }
+  //   fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify(datos)
+  //   }).then(response => {
+  //     console.log('✅ Registro enviado con fetch. Status:', response.status);
+  //   }).catch(error => {
+  //     console.error('❌ Error al enviar con fetch:', error);
+  //   });
+
+  // }
   @HostListener('window:beforeunload', ['$event'])
-  registrarSalida(event: Event): void {
-    const horaSalida = Date.now();
-    const tiempoMs = horaSalida - this.horaEntrada;
-    const tiempoFormateado = this.formatearTiempo(tiempoMs);
+registrarSalida(event: Event): void {
+  const horaSalida = Date.now();
+  const tiempoMs = horaSalida - this.horaEntrada;
+  const tiempoFormateado = this.formatearTiempo(tiempoMs);
 
-    const datos = {
-      TiempoPromedio: tiempoFormateado,
-      Navegador: this.ObtenerNavegador()
-    };
+  const datos = {
+    TiempoPromedio: tiempoFormateado,
+    Navegador: this.ObtenerNavegador()
+  };
 
-    const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
+  const jsonData = JSON.stringify(datos);
+  const blob = new Blob([jsonData], { type: 'application/json' });
 
-    // const exito = navigator.sendBeacon(
-    //   'https://carritoweb-cafejuanana-api.onrender.com/api/reportetiempopagina/crear',
-    //   blob
-    // );
+  // Intenta enviar con sendBeacon
+  const enviado = navigator.sendBeacon(Entorno.ApiUrl + 'reportetiempopagina/crear', blob);
 
-    // const exito = navigator.sendBeacon(
-    //   Entorno.ApiUrl + 'reportetiempopagina/crear',
-    //   blob
-    // );
-
-    // if (exito) {
-    //   console.log('✅ Beacon enviado correctamente.');
-    // } else {
-    //   console.warn('⚠️ Beacon NO se pudo enviar.');
-    // }
+  if (!enviado) {
+    // Fallback con fetch y keepalive para asegurar envío
     fetch(Entorno.ApiUrl + 'reportetiempopagina/crear', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(datos)
+      body: jsonData,
+      keepalive: true
     }).then(response => {
-      console.log('✅ Registro enviado con fetch. Status:', response.status);
+      console.log('✅ Registro enviado con fetch (fallback). Status:', response.status);
     }).catch(error => {
-      console.error('❌ Error al enviar con fetch:', error);
+      console.error('❌ Error al enviar con fetch (fallback):', error);
     });
-
   }
+}
+
 
   RegistrarTiempoPagina(tiempoFormateado: string): void {
     const Datos = {
