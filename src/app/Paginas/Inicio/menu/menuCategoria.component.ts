@@ -403,6 +403,7 @@ export class MenuCategoriaComponent implements OnInit {
           this.menuPortadaServicio.Editar(datosActualizados).subscribe({
             next: () => {
               this.alertaServicio.MostrarExito('Imagen actualizada correctamente', 'Éxito');
+                  this.cargarMenuPortada();
               this.modoEdicion = false;
             },
             error: (error) => {
