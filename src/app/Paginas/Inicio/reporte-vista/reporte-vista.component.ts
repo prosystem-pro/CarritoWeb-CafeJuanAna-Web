@@ -73,6 +73,8 @@ export class ReporteVistaComponent {
 
     this.Servicio.ObtenerResumen(Anio, Mes).subscribe({
       next: (res) => {
+        this.TotalSolicitudMes=0;
+        console.log('RESPUESTA DEL BACKEND',res)
         // Guardamos total solicitudes por mes
         if (res.SolicitudTotalMes && typeof res.SolicitudTotalMes === 'number') {
           this.TotalSolicitudMes = res.SolicitudTotalMes;

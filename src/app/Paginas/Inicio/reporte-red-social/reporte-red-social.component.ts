@@ -71,6 +71,7 @@ export class ReporteRedSocialComponent {
 
     this.Servicio.ObtenerResumen(Anio, Mes).subscribe({
       next: (res) => {
+          this.TotalSolicitudMes=0;
         // Guardamos total solicitudes por mes
         if (res.SolicitudTotalMes && typeof res.SolicitudTotalMes === 'number') {
           this.TotalSolicitudMes = res.SolicitudTotalMes;
