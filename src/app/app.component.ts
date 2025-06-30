@@ -10,6 +10,7 @@ import { Entorno } from './Entornos/Entorno';
 import { SidebarRedSocialComponent } from './Componentes/sidebar-red-social/sidebar-red-social.component';
 import { CarritoEstadoService } from './Servicios/CarritoEstadoServicio';
 import { PermisoServicio } from './Autorizacion/AutorizacionPermiso';
+import { LoginServicio } from './Servicios/LoginServicio';
 
 @Component({
   selector: 'app-root',
@@ -31,7 +32,8 @@ export class AppComponent implements OnInit {
     private ReporteVistaServicio: ReporteVistaServicio,
     private ReporteTiempoPaginaServicio: ReporteTiempoPaginaServicio,
     private carritoEstadoService: CarritoEstadoService,
-    public permisoServicio: PermisoServicio
+    public permisoServicio: PermisoServicio,
+    private loginServicio: LoginServicio
   ) {
     this.carritoEstadoService.carritoAbierto$.subscribe(
       estado => this.carritoAbierto = estado
@@ -42,6 +44,13 @@ export class AppComponent implements OnInit {
     this.horaEntrada = Date.now();
     this.reiniciarTemporizadorInactividad();
     this.ReportarVista();
+    const tokenValido = this.loginServicio.ValidarToken();
+    if (!tokenValido) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('colorClasificacion');
+      localStorage.removeItem('colorClasificacionTexto');
+    }
+
 
     setTimeout(() => {
       const datos = {
@@ -58,25 +67,25 @@ export class AppComponent implements OnInit {
     }, 5000);
   }
 
-iniciarActualizacionTiempo(): void {
-  this.intervaloActualizacion = setInterval(() => {
-    if (!this.codigoReporteTiempoPagina) return;
+  iniciarActualizacionTiempo(): void {
+    this.intervaloActualizacion = setInterval(() => {
+      if (!this.codigoReporteTiempoPagina) return;
 
-    const tiempoMs = Date.now() - this.horaEntrada;
-    const tiempoFormateado = this.formatearTiempo(tiempoMs);
+      const tiempoMs = Date.now() - this.horaEntrada;
+      const tiempoFormateado = this.formatearTiempo(tiempoMs);
 
-    const datos = {
-      CodigoReporteTiempoPagina: this.codigoReporteTiempoPagina,
-      TiempoPromedio: tiempoFormateado,
-      Navegador: this.ObtenerNavegador()
-    };
+      const datos = {
+        CodigoReporteTiempoPagina: this.codigoReporteTiempoPagina,
+        TiempoPromedio: tiempoFormateado,
+        Navegador: this.ObtenerNavegador()
+      };
 
-    this.ReporteTiempoPaginaServicio.Editar(datos).subscribe({
-      next: () => {},
-      error: () => {}
-    });
-  }, 10000);
-}
+      this.ReporteTiempoPaginaServicio.Editar(datos).subscribe({
+        next: () => { },
+        error: () => { }
+      });
+    }, 10000);
+  }
 
 
   @HostListener('window:mousemove')
@@ -87,12 +96,27 @@ iniciarActualizacionTiempo(): void {
   }
 
   reiniciarTemporizadorInactividad(): void {
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+      // Usuario público, no iniciar temporizador
+      return;
+    }
+
     clearTimeout(this.temporizadorInactividad);
     this.temporizadorInactividad = setTimeout(() => {
       console.warn('Usuario inactivo. Cerrando sesión automáticamente...');
       this.cerrarSesion();
     }, this.tiempoMaxInactividadMs);
   }
+
+  // reiniciarTemporizadorInactividad(): void {
+  //   clearTimeout(this.temporizadorInactividad);
+  //   this.temporizadorInactividad = setTimeout(() => {
+  //     console.warn('Usuario inactivo. Cerrando sesión automáticamente...');
+  //     this.cerrarSesion();
+  //   }, this.tiempoMaxInactividadMs);
+  // }
 
   cerrarSesion(): void {
     localStorage.removeItem('authToken');
