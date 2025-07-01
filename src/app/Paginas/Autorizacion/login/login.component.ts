@@ -46,11 +46,38 @@ export class LoginComponent implements OnInit {
   obtenerPortadaLogin(): void {
     this.loginPortadaServicio.Listado().subscribe({
       next: (data) => {
-        this.portadaLogin = data[0];
+        if (data && data.length > 0) {
+          this.portadaLogin = data[0];
+          console.log(this.portadaLogin);
+        } else {
+          this.crearLoginPortadaPorDefecto();
+        }
       },
       error: (error) => {
         console.error('Error al obtener la portada de login', error);
+        // this.crearLoginPortadaPorDefecto();
       },
+    });
+  }
+
+  private crearLoginPortadaPorDefecto(): void {
+    const portadaDefecto = {
+      UrlImagenPortada: '',
+      UrlImagenDecorativaIzquierda: '',
+      UrlImagenDecorativaDerecha: '',
+      Color: '#44261B',
+      Estatus: 1
+    };
+
+    this.loginPortadaServicio.Crear(portadaDefecto).subscribe({
+      next: (response) => {
+        this.portadaLogin = response.Entidad || response;
+        this.alertaServicio.MostrarExito('Se creó una configuración de login por defecto');
+      },
+      error: (error) => {
+        console.error('Error al crear portada de login por defecto:', error);
+        this.alertaServicio.MostrarError('No se pudo crear la configuración inicial del login');
+      }
     });
   }
 
@@ -95,6 +122,10 @@ export class LoginComponent implements OnInit {
   guardarCambios(): void {
     if (this.portadaLogin) {
       const datosActualizados = { ...this.portadaLogin };
+
+      delete datosActualizados.UrlImagenPortada;
+      delete datosActualizados.UrlImagenDecorativaIzquierda;
+      delete datosActualizados.UrlImagenDecorativaDerecha;
 
       this.loginPortadaServicio.Editar(datosActualizados).subscribe({
         next: (response) => {
@@ -198,6 +229,10 @@ export class LoginComponent implements OnInit {
           this.portadaLogin[campoDestino] = response.Entidad[campoDestino];
 
           const datosActualizados = { ...this.portadaLogin };
+
+          delete datosActualizados.UrlImagenPortada;
+          delete datosActualizados.UrlImagenDecorativaIzquierda;
+          delete datosActualizados.UrlImagenDecorativaDerecha;
 
           this.loginPortadaServicio.Editar(datosActualizados).subscribe({
             next: (updateResponse) => {
