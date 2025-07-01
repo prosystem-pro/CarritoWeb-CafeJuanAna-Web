@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
   title = 'CarritoWeb-Web';
   private horaEntrada: number = 0;
   private temporizadorInactividad: any;
-  private tiempoMaxInactividadMs = 5 * 60 * 1000;
+  private tiempoMaxInactividadMs = 15 * 60 * 1000;
   private codigoReporteTiempoPagina: number | null = null;
   private intervaloActualizacion: any;
   carritoAbierto = false;
