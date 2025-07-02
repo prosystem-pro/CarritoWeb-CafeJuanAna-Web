@@ -73,6 +73,7 @@ export class LoginComponent implements OnInit {
       next: (response) => {
         this.portadaLogin = response.Entidad || response;
         this.alertaServicio.MostrarExito('Se creó una configuración de login por defecto');
+        this.obtenerPortadaLogin();
       },
       error: (error) => {
         console.error('Error al crear portada de login por defecto:', error);
@@ -222,6 +223,7 @@ export class LoginComponent implements OnInit {
     formData.append('CodigoPropio', this.portadaLogin.CodigoLoginPortada);
     formData.append('CampoPropio', 'CodigoLoginPortada');
     formData.append('NombreCampoImagen', campoDestino);
+  // Mostrar en consola los datos del FormData
 
     this.http.post(`${this.Url}subir-imagen`, formData).subscribe({
       next: (response: any) => {
