@@ -239,6 +239,7 @@ export class LoginComponent implements OnInit {
               this.alertaServicio.MostrarExito(
                 'Imagen actualizada correctamente'
               );
+              this.obtenerPortadaLogin();
               this.modoEdicion = false;
             },
             error: (updateError) => {
