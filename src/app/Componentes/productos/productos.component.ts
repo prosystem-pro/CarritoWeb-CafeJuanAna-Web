@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 import { ClasificacionProductoServicio } from '../../Servicios/ClasificacionProductoServicio';
 import { AlertaServicio } from '../../Servicios/Alerta-Servicio';
 import { PermisoServicio } from '../../Autorizacion/AutorizacionPermiso';
+import { MenuPortadaServicio } from '../../Servicios/MenuPortadaServicio';
 
 interface ProductoConCantidad extends Producto {
   cantidad?: number;
@@ -77,6 +78,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
     moneda: '',
     valor: 0,
   };
+  Data: any = null;
+  colorNavbarEIcono: string = '';
+  colorTextoNavbar: string = '';
 
   // Variables para nuevo producto
   creandoNuevoProducto: boolean = false;
@@ -95,6 +99,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
     private servicioCompartido: ServicioCompartido,
     private clasificacionProductoServicio: ClasificacionProductoServicio,
     private alertaServicio: AlertaServicio,
+    private menuPortadaServicio: MenuPortadaServicio,
     public Permiso: PermisoServicio,
     private http: HttpClient
   ) {
@@ -159,6 +164,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.cargarData();
     // Recuperar el total de items en el carrito si existe en localStorage
     this.actualizarTotalCarrito();
   }
@@ -267,6 +273,20 @@ export class ProductosComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.alertaServicio.MostrarError(err, 'Error al cargar clasificación');
+      },
+    });
+  }
+
+  cargarData(): void {
+    this.menuPortadaServicio.Listado().subscribe({
+      next: (data) => {
+        if (data && data.length > 0) {
+          this.Data = data[0];
+          this.colorNavbarEIcono = this.Data?.ColorFondoNombreClasificacion || '';
+          this.colorTextoNavbar = this.Data?.ColorNombreClasificacion || '';
+        }
+      },
+      error: (err) => {
       },
     });
   }

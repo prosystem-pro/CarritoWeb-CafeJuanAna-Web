@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ServicioCompartido } from '../../Servicios/ServicioCompartido';
 import { EmpresaServicio } from '../../Servicios/EmpresaServicio';
@@ -23,12 +23,12 @@ interface ProductoConCantidad {
 })
 export class CarritoComponent implements OnInit {
   @Output() cerrarCarrito = new EventEmitter<void>();
+  @Input() colorNavbarEIcono: string = '';
+  @Input() colorTextoNavbar: string = '';
   datosEmpresa: any = null;
 
   productosCarrito: ProductoConCantidad[] = [];
   total: number = 0;
-  colorNavbarEIcono: string = '';
-  colorTextoNavbar: string = '';
 
   constructor(private carritoService: ServicioCompartido, private empresaServicio: EmpresaServicio, private RedSocialServicio: RedSocialServicio,
     private ReporteProductoServicio: ReporteProductoServicio, private AlertaServicio: AlertaServicio
@@ -37,12 +37,6 @@ export class CarritoComponent implements OnInit {
   ngOnInit(): void {
     this.cargarProductosCarrito();
     this.calcularTotal();
-    this.obtenerEstilosCarrito();
-  }
-
-  obtenerEstilosCarrito(): void {
-    this.colorNavbarEIcono = localStorage.getItem('colorClasificacion') || '';
-    this.colorTextoNavbar = localStorage.getItem('colorClasificacionTexto') || '';
   }
 
   cargarProductosCarrito(): void {

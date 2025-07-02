@@ -269,7 +269,8 @@
     </div>
 
     <!-- Componente del carrito que se muestra condicionalmente -->
-    <app-carrito *ngIf="mostrarCarrito" (cerrarCarrito)="alternarCarrito()"></app-carrito>
+    <app-carrito *ngIf="mostrarCarrito" (cerrarCarrito)="alternarCarrito()" [colorNavbarEIcono]="colorNavbarEIcono"
+        [colorTextoNavbar]="colorTextoNavbar"></app-carrito>
 
     <!-- El footer que siempre estará abajo -->
     <div [style.backgroundColor]="colorFooter" class="w-100 mt-auto"

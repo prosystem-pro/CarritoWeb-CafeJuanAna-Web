@@ -15,6 +15,7 @@ import { ReporteRedSocialServicio } from '../../Servicios/ReporteRedSocialServic
 import { RedSocialImagenServicio } from '../../Servicios/RedSocialImagenServicio';
 import { CarritoEstadoService } from '../../Servicios/CarritoEstadoServicio';
 import { EmpresaServicio } from '../../Servicios/EmpresaServicio'; // Importar el servicio
+import { MenuPortadaServicio } from '../../Servicios/MenuPortadaServicio';
 
 @Component({
   selector: 'app-header',
@@ -37,7 +38,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   mostrarCarrito = false;
   RedeSocial: any = [];
   esMovil: boolean = false;
-  codigoEmpresa: number | null = null; // Nueva propiedad para almacenar el código de empresa
+  codigoEmpresa: number | null = null;
+  Data: any = null;
+  colorNavbarEIcono: string = '';
+  colorTextoNavbar: string = '';
 
   @ViewChild('navbarCollapse') navbarCollapse!: ElementRef;
 
@@ -53,6 +57,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private AlertaServicio: AlertaServicio,
     private carritoEstadoService: CarritoEstadoService,
     private ReporteRedSocialServicio: ReporteRedSocialServicio,
+    private menuPortadaServicio: MenuPortadaServicio,
     private EmpresaServicio: EmpresaServicio // Inyectar el servicio
   ) { }
 
@@ -60,6 +65,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.obtenerCodigoEmpresa().then(() => {
       this.Listado();
       this.cargarRedesSociales();
+      this.cargarData();
       this.subscription = this.servicioCompartido.carritoVaciado$.subscribe(() => {
         this.obtenerTotalItemsCarrito();
       });
@@ -162,6 +168,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.Datos = navbarDefecto;
         this.actualizarEstilosCSS();
       }
+    });
+  }
+
+  cargarData(): void {
+    this.menuPortadaServicio.Listado().subscribe({
+      next: (data) => {
+        if (data && data.length > 0) {
+          this.Data = data[0];
+          this.colorNavbarEIcono = this.Data?.ColorFondoNombreClasificacion || '';
+          this.colorTextoNavbar = this.Data?.ColorNombreClasificacion || '';
+        }
+      },
+      error: (err) => {
+      },
     });
   }
 

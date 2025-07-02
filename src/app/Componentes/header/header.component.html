@@ -279,7 +279,8 @@
             <!-- Input de color oculto -->
             <input type="color" #colorPicker id="colorPicker" style="display: none;" (input)="changeColor($event)">
 
-            <app-carrito *ngIf="mostrarCarrito" (cerrarCarrito)="alternarCarrito()"></app-carrito>
+            <app-carrito *ngIf="mostrarCarrito" (cerrarCarrito)="alternarCarrito()"
+                [colorNavbarEIcono]="colorNavbarEIcono" [colorTextoNavbar]="colorTextoNavbar"></app-carrito>
         </div>
     </div>
 </header>
