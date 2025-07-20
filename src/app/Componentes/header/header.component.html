@@ -134,7 +134,13 @@
                             placeholder="Reportes">
                     </div>
                 </li>
-
+                <li *ngIf="Permiso.PermisoAdminSuperAdmin()" class="nav-item">
+                    <a class="nav-link" (click)="navegar('/pago')"
+                        [ngClass]="!esMovil && estaRutaActiva('/pago') ? 'active-route' : ''"
+                        [ngStyle]="{'color': Datos?.ColorTextoMenu || '#000000'}">
+                        Pago
+                    </a>
+                </li>
                 <li class="nav-item">
                     <!-- Versión normal -->
                     <a *ngIf="!modoEdicion" [class.btn]="!esMovil" [class.rounded-pill]="!esMovil"

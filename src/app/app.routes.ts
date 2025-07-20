@@ -11,6 +11,7 @@ import { HeaderReporteComponent } from './Componentes/header-reporte/header-repo
 import { ReporteVistaComponent } from './Paginas/Inicio/reporte-vista/reporte-vista.component';
 import { ReporteRedSocialComponent } from './Paginas/Inicio/reporte-red-social/reporte-red-social.component';
 import { ReporteTiempoPaginaComponent } from './Paginas/Inicio/reporte-tiempo-pagina/reporte-tiempo-pagina.component';
+import { PagoComponent } from './Paginas/Inicio/pago/pago.component';
 import { LoginGuard } from './Servicios/loginGuard';
 
 export const routes: Routes = [
@@ -18,19 +19,20 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
 
   //Rutas publicas
-  { path: 'nosotros', component: NosotrosComponent},
-  { path: 'clasificacion', component: MenuCategoriaComponent},
+  { path: 'nosotros', component: NosotrosComponent },
+  { path: 'clasificacion', component: MenuCategoriaComponent },
   { path: 'productos/:codigo/:nombre', component: ProductosComponent },
   { path: 'productos/buscar', component: ProductosComponent },
-  { path: 'contacto', component: ContactoComponent},
-  { path: 'otro', component: OtroComponent},
+  { path: 'contacto', component: ContactoComponent },
+  { path: 'otro', component: OtroComponent },
 
   //Rutas protegidas
-  { path: 'reporte-producto', component: ReporteProductoComponent,canActivate: [AutorizacionRuta] },
-  { path: 'header-reporte', component: HeaderReporteComponent,canActivate: [AutorizacionRuta] },
-  { path: 'reporte-vista', component: ReporteVistaComponent,canActivate: [AutorizacionRuta] },
-  { path: 'reporte-red-social', component: ReporteRedSocialComponent,canActivate: [AutorizacionRuta] },
-  { path: 'reporte-tiempo-pagina', component: ReporteTiempoPaginaComponent,canActivate: [AutorizacionRuta] },
-  
+  { path: 'reporte-producto', component: ReporteProductoComponent, canActivate: [AutorizacionRuta] },
+  { path: 'header-reporte', component: HeaderReporteComponent, canActivate: [AutorizacionRuta] },
+  { path: 'reporte-vista', component: ReporteVistaComponent, canActivate: [AutorizacionRuta] },
+  { path: 'reporte-red-social', component: ReporteRedSocialComponent, canActivate: [AutorizacionRuta] },
+  { path: 'reporte-tiempo-pagina', component: ReporteTiempoPaginaComponent, canActivate: [AutorizacionRuta] },
+  { path: 'pago', component: PagoComponent, canActivate: [AutorizacionRuta] },
+
   { path: '**', redirectTo: 'nosotros' },
 ];
